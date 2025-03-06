@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
  */
 
 namespace Magento\Customer\Controller\Address;
@@ -122,6 +122,11 @@ class FormPost extends \Magento\Customer\Controller\Address implements HttpPostA
             $existingAddressData
         );
         $addressData = $addressForm->extractData($this->getRequest());
+        if ($deleteAttribute = $this->getRequest()->getParam('delete_attribute_value')) {
+            if (!empty($addressData[$deleteAttribute])) {
+                unset($addressData[$deleteAttribute]);
+            }
+        }
         $attributeValues = $addressForm->compactData($addressData);
 
         $this->updateRegionData($attributeValues);
@@ -253,6 +258,7 @@ class FormPost extends \Magento\Customer\Controller\Address implements HttpPostA
      * @return Mapper
      *
      * @deprecated 100.1.3
+     * @see Nothing
      */
     private function getCustomerAddressMapper()
     {
@@ -277,6 +283,9 @@ class FormPost extends \Magento\Customer\Controller\Address implements HttpPostA
             if ($attributeValue->getValue() !== '') {
                 $mediaDirectory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
                 $fileName = $attributeValue->getValue();
+                while (strpos($fileName, "..")) {
+                    $fileName = str_replace("..", ".", $fileName);
+                }
                 $path = $mediaDirectory->getAbsolutePath('customer_address' . $fileName);
                 if ($fileName && $mediaDirectory->isFile($path)) {
                     $mediaDirectory->delete($path);

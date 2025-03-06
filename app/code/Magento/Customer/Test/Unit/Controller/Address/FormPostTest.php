@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * Copyright 2015 Adobe
+ * All Rights Reserved.
  */
 declare(strict_types=1);
 
@@ -498,7 +498,7 @@ class FormPostTest extends TestCase
         $this->request->expects($this->once())
             ->method('isPost')
             ->willReturn(true);
-        $this->request->expects($this->exactly(4))
+        $this->request->expects($this->exactly(5))
             ->method('getParam')
             ->willReturnMap([
                 ['id', null, $addressId],
