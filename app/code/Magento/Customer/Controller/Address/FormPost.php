@@ -281,19 +281,27 @@ class FormPost extends \Magento\Customer\Controller\Address implements HttpPostA
         $attributeValue = $address->getCustomAttribute($this->_request->getParam('delete_attribute_value'));
         if ($attributeValue!== null) {
             if ($attributeValue->getValue() !== '') {
-                $mediaDirectory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
-                $fileName = $attributeValue->getValue();
-                while (strpos($fileName, "..")) {
-                    $fileName = str_replace("..", ".", $fileName);
-                }
-                $path = $mediaDirectory->getAbsolutePath('customer_address' . $fileName);
-                if ($fileName && $mediaDirectory->isFile($path)) {
-                    $mediaDirectory->delete($path);
-                }
-                $address->setCustomAttribute(
-                    $this->_request->getParam('delete_attribute_value'),
-                    ''
+                $addressForm = $this->_formFactory->create(
+                    'customer_address',
+                    'customer_address_edit',
+                    []
                 );
+                $attribute = $addressForm->getAttribute($attributeValue->getAttributeCode());
+                if (\in_array($attribute->getFrontendInput(), ['file', 'image'], true)) {
+                    $mediaDirectory = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA);
+                    $fileName = $attributeValue->getValue();
+                    while (strpos($fileName, "..")) {
+                        $fileName = str_replace("..", ".", $fileName);
+                    }
+                    $path = $mediaDirectory->getAbsolutePath('customer_address' . $fileName);
+                    if ($fileName && $mediaDirectory->isFile($path)) {
+                        $mediaDirectory->delete($path);
+                    }
+                    $address->setCustomAttribute(
+                        $this->_request->getParam('delete_attribute_value'),
+                        ''
+                    );
+                }
             }
         }
 
